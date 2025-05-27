@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/vault/api"
 )
@@ -49,6 +50,10 @@ func CheckACLRoot(client *api.Client) error {
 		// cleanup
 		client.SetToken(rootToken)
 		err = client.Sys().UnmountWithContext(ctx, path)
+		if err != nil {
+			return err
+		}
+		err = client.Sys().DisableAuthWithContext(ctx, path)
 		if err != nil {
 			return err
 		}
@@ -106,6 +111,16 @@ func CheckACLNamespace(client *api.Client) error {
 		if err != nil {
 			return err
 		}
+		err = clone.Sys().DisableAuthWithContext(ctx, path)
+		if err != nil {
+			return err
+		}
+		// remove the namespace
+		_, err = client.Logical().DeleteWithContext(ctx, "sys/namespaces/"+rootNS)
+		if err != nil {
+			return err
+		}
+		time.Sleep(time.Second * 2)
 	}
 	return nil
 }
@@ -283,8 +298,16 @@ func CheckACLMixNormal(client *api.Client) error {
 		if err != nil {
 			return err
 		}
+		err = client.Sys().DisableAuthWithContext(ctx, path)
+		if err != nil {
+			return err
+		}
 		clone.SetToken(rootToken)
 		err = clone.Sys().UnmountWithContext(ctx, path)
+		if err != nil {
+			return err
+		}
+		err = clone.Sys().DisableAuthWithContext(ctx, path)
 		if err != nil {
 			return err
 		}
@@ -293,6 +316,21 @@ func CheckACLMixNormal(client *api.Client) error {
 		if err != nil {
 			return err
 		}
+		err = clone2.Sys().DisableAuthWithContext(ctx, path)
+		if err != nil {
+			return err
+		}
+		// remove the namespace
+		_, err = clone.Logical().DeleteWithContext(ctx, "sys/namespaces/ns2")
+		if err != nil {
+			return err
+		}
+		time.Sleep(time.Second * 2)
+		_, err = client.Logical().DeleteWithContext(ctx, "sys/namespaces/ns1")
+		if err != nil {
+			return err
+		}
+		time.Sleep(time.Second * 2)
 	}
 	return nil
 }
@@ -470,8 +508,16 @@ func CheckACLMixPower(client *api.Client) error {
 		if err != nil {
 			return err
 		}
+		err = client.Sys().DisableAuthWithContext(ctx, path)
+		if err != nil {
+			return err
+		}
 		clone.SetToken(rootToken)
 		err = clone.Sys().UnmountWithContext(ctx, path)
+		if err != nil {
+			return err
+		}
+		err = clone.Sys().DisableAuthWithContext(ctx, path)
 		if err != nil {
 			return err
 		}
@@ -480,6 +526,21 @@ func CheckACLMixPower(client *api.Client) error {
 		if err != nil {
 			return err
 		}
+		err = clone2.Sys().DisableAuthWithContext(ctx, path)
+		if err != nil {
+			return err
+		}
+		// remove the namespace
+		_, err = clone.Logical().DeleteWithContext(ctx, "sys/namespaces/ns2")
+		if err != nil {
+			return err
+		}
+		time.Sleep(time.Second * 2)
+		_, err = client.Logical().DeleteWithContext(ctx, "sys/namespaces/ns1")
+		if err != nil {
+			return err
+		}
+		time.Sleep(time.Second * 2)
 	}
 	return nil
 }

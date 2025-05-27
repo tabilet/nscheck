@@ -3,7 +3,9 @@ package vaultcheck
 import (
 	"context"
 	"fmt"
+	"os"
 	"slices"
+	"time"
 
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/api/auth/approle"
@@ -185,7 +187,7 @@ func CheckApproleMix(client *api.Client) error {
 		return err
 	}
 
-	client.SetNamespace("")
+	client.SetNamespace(os.Getenv("VAULT_NAMESPACE"))
 	_, err = client.Logical().DeleteWithContext(ctx, "sys/namespaces/"+rootNS)
 	if err != nil {
 		return err
@@ -205,41 +207,43 @@ func getApprole(client *api.Client, ctx context.Context, path, roleName string, 
 		Type: "approle",
 	})
 	if err != nil {
-		return
+		return "", "", "", err
 	}
+	time.Sleep(time.Second * 2)
+
 	_, err = logical.WriteWithContext(ctx, "auth/"+path+"/role/"+roleName, map[string]any{
 		"policies": policies,
 	})
 	if err != nil {
-		return
+		return "", "", "", err
 	}
 	secret, err := logical.WriteWithContext(ctx, "auth/"+path+"/role/"+roleName+"/secret-id", nil)
 	if err != nil {
-		return
+		return "", "", "", err
 	}
 	secretID = secret.Data["secret_id"].(string)
 	secret, err = logical.ReadWithContext(ctx, "auth/"+path+"/role/"+roleName+"/role-id")
 	if err != nil {
-		return
+		return "", "", "", err
 	}
 	roleID = secret.Data["role_id"].(string)
 
 	auth, err := approle.NewAppRoleAuth(roleID, &approle.SecretID{FromString: secretID})
 	if err != nil {
-		return
+		return "", "", "", err
 	}
 	secret, err = auth.Login(ctx, client)
 	if err != nil {
-		return
+		return "", "", "", err
 	}
 	if secret.Auth == nil {
 		err = fmt.Errorf("No auth data")
-		return
+		return "", "", "", err
 	}
 
 	token = secret.Auth.ClientToken
 
-	return
+	return roleID, secretID, token, nil
 }
 
 func dropApprole(client *api.Client, ctx context.Context, secretID, path, roleName string) error {

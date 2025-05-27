@@ -3,6 +3,7 @@ package vaultcheck
 import (
 	"context"
 	"fmt"
+	"os"
 	"slices"
 
 	"github.com/hashicorp/vault/api"
@@ -64,8 +65,8 @@ func CheckTokenNamespace(client *api.Client) error {
 	}
 
 	if client.Token() != clone.Token() ||
-		client.Namespace() != "" ||
-		clone.Namespace() != rootNS {
+		client.Namespace() != os.Getenv("VAULT_NAMESPACE") ||
+		clone.Namespace() != combinedPath(rootNS) {
 		return fmt.Errorf("root Token: %s in namespace %s, clone %s in namespace %s", client.Token(), client.Namespace(), clone.Token(), clone.Namespace())
 	}
 
@@ -85,7 +86,7 @@ func CheckTokenNamespace(client *api.Client) error {
 		return fmt.Errorf("revocation failed %+v", s2.Auth)
 	}
 
-	client.SetNamespace("")
+	client.SetNamespace(os.Getenv("VAULT_NAMESPACE"))
 	_, err = client.Logical().DeleteWithContext(ctx, "sys/namespaces/"+rootNS)
 	if err != nil {
 		return err
@@ -136,8 +137,8 @@ func CheckTokenMix(client *api.Client) error {
 	}
 
 	if client.Token() != clone.Token() ||
-		client.Namespace() != "" ||
-		clone.Namespace() != rootNS {
+		client.Namespace() != os.Getenv("VAULT_NAMESPACE") ||
+		clone.Namespace() != combinedPath(rootNS) {
 		return fmt.Errorf("root Token: %s in namespace %s, clone %s in namespace %s", client.Token(), client.Namespace(), clone.Token(), clone.Namespace())
 	}
 
@@ -175,7 +176,7 @@ func CheckTokenMix(client *api.Client) error {
 	}
 
 	// clean up
-	client.SetNamespace("")
+	client.SetNamespace(os.Getenv("VAULT_NAMESPACE"))
 	_, err = client.Logical().DeleteWithContext(ctx, "sys/namespaces/"+rootNS)
 	if err != nil {
 		return err

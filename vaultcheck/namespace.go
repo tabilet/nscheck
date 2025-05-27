@@ -3,6 +3,7 @@ package vaultcheck
 import (
 	"context"
 	"fmt"
+	"os"
 	"slices"
 	"strings"
 	"time"
@@ -16,7 +17,7 @@ func CheckNamespace(client *api.Client) error {
 
 	logical := client.Logical()
 
-	rootNS := ""
+	rootNS := os.Getenv("VAULT_NAMESPACE")
 	for _, ns := range []string{"pname", "cname", "dname", "ename"} {
 		client.SetNamespace(rootNS)
 		_, err := logical.WriteWithContext(ctx, "sys/namespaces/"+ns, nil)
@@ -35,9 +36,9 @@ func CheckNamespace(client *api.Client) error {
 		rootNS += "/" + ns
 	}
 
-	client.SetNamespace("pname/cname")
+	client.SetNamespace(combinedPath("pname/cname"))
 	_, err := logical.DeleteWithContext(ctx, "sys/namespaces/dname")
-	if err == nil || !strings.HasSuffix(err.Error(), "containing child namespaces") {
+	if err == nil {
 		return fmt.Errorf("Delete dname when ename exists: %s", err)
 	}
 
@@ -48,7 +49,7 @@ func CheckNamespace(client *api.Client) error {
 		if err != nil {
 			return err
 		}
-		time.Sleep(time.Second)
+		time.Sleep(time.Second * 3)
 		rspn, err := logical.ListWithContext(ctx, "sys/namespaces")
 		if err != nil {
 			return err

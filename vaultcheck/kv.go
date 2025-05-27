@@ -3,7 +3,9 @@ package vaultcheck
 import (
 	"context"
 	"fmt"
+	"os"
 	"slices"
+	"time"
 
 	"github.com/hashicorp/vault/api"
 )
@@ -100,7 +102,7 @@ func CheckKVNamespace(client *api.Client) error {
 		return err
 	}
 
-	client.SetNamespace("")
+	client.SetNamespace(os.Getenv("VAULT_NAMESPACE"))
 	_, err = client.Logical().DeleteWithContext(ctx, "sys/namespaces/"+pname)
 	if err != nil {
 		return err
@@ -148,7 +150,7 @@ func CheckKVMix(client *api.Client) error {
 	}
 
 	// in root namespace
-	client.SetNamespace("") // just to setup again, maybe not necessary
+	client.SetNamespace(os.Getenv("VAULT_NAMESPACE"))
 	kvSecret, err = kv1.Get(ctx, name2)
 	// kv2 tries to get a secret in child namespace
 	if err == nil || (err.Error())[:16] != "secret not found" {
@@ -190,6 +192,7 @@ func checkKVMount(ctx context.Context, client *api.Client, path string) error {
 	if err != nil {
 		return err
 	}
+	time.Sleep(time.Second * 2)
 
 	mountsRspn, err := sys.ListMountsWithContext(ctx)
 	if err != nil {

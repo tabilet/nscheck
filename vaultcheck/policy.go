@@ -3,6 +3,7 @@ package vaultcheck
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/hashicorp/vault/api"
 )
@@ -158,7 +159,7 @@ func CheckPolicyNamespaceDefault(client *api.Client) error {
 		return err
 	}
 
-	client.SetNamespace("")
+	client.SetNamespace(os.Getenv("VAULT_NAMESPACE"))
 	_, err = client.Logical().DeleteWithContext(ctx, "sys/namespaces/"+rootNS)
 	if err != nil {
 		return err
@@ -244,7 +245,7 @@ func CheckPolicyNamespaceCustom(client *api.Client) error {
 		return fmt.Errorf("%#v", arr)
 	}
 
-	client.SetNamespace("")
+	client.SetNamespace(os.Getenv("VAULT_NAMESPACE"))
 	_, err = client.Logical().DeleteWithContext(ctx, "sys/namespaces/"+rootNS)
 	if err != nil {
 		return err
@@ -270,7 +271,7 @@ func CheckPolicyMixDeleteInNamespace(client *api.Client) error {
 	if err != nil {
 		return err
 	}
-	clone.SetNamespace(rootNS)
+	clone.SetNamespace(combinedPath(rootNS))
 	clone.SetToken(rootToken)
 	sysNS := clone.Sys()
 
@@ -357,7 +358,7 @@ func CheckPolicyMixDeleteInRoot(client *api.Client) error {
 	if err != nil {
 		return err
 	}
-	clone.SetNamespace(rootNS)
+	clone.SetNamespace(combinedPath(rootNS))
 	clone.SetToken(rootToken)
 	sysNS := clone.Sys()
 	logicalNS := clone.Logical()
