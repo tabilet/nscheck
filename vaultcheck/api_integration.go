@@ -9,6 +9,7 @@ import (
 )
 
 func getClient() (*api.Client, error) {
+	time.Sleep(time.Second * 4) // Ensure Namespace is ready before creating a client
 	client, err := api.NewClient(api.DefaultConfig())
 	if err != nil {
 		return nil, err
