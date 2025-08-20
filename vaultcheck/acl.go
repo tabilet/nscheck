@@ -120,7 +120,7 @@ func CheckACLNamespace(client *api.Client) error {
 		if err != nil {
 			return err
 		}
-		time.Sleep(time.Second * 4)
+		time.Sleep(sleeping)
 	}
 	return nil
 }
@@ -325,12 +325,12 @@ func CheckACLMixNormal(client *api.Client) error {
 		if err != nil {
 			return err
 		}
-		time.Sleep(time.Second * 4)
+		time.Sleep(sleeping)
 		_, err = client.Logical().DeleteWithContext(ctx, "sys/namespaces/ns1")
 		if err != nil {
 			return err
 		}
-		time.Sleep(time.Second * 4)
+		time.Sleep(sleeping)
 	}
 	return nil
 }
@@ -535,12 +535,12 @@ func CheckACLMixPower(client *api.Client) error {
 		if err != nil {
 			return err
 		}
-		time.Sleep(time.Second * 4)
+		time.Sleep(sleeping)
 		_, err = client.Logical().DeleteWithContext(ctx, "sys/namespaces/ns1")
 		if err != nil {
 			return err
 		}
-		time.Sleep(time.Second * 4)
+		time.Sleep(sleeping)
 	}
 	return nil
 }

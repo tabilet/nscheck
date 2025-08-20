@@ -192,7 +192,7 @@ func checkKVMount(ctx context.Context, client *api.Client, path string) error {
 	if err != nil {
 		return err
 	}
-	time.Sleep(time.Second * 4)
+	time.Sleep(sleeping)
 
 	mountsRspn, err := sys.ListMountsWithContext(ctx)
 	if err != nil {

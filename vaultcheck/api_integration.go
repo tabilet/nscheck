@@ -9,8 +9,13 @@ import (
 	"github.com/openbao/openbao/api/v2"
 )
 
+const (
+	RootTokenAddr = ".vault-token"
+	sleeping      = 4 * time.Second
+)
+
 func getClient() (*api.Client, error) {
-	time.Sleep(time.Second * 4) // Ensure Namespace is ready before creating a client
+	time.Sleep(sleeping) // Ensure Namespace is ready before creating a client
 	client, err := api.NewClient(api.DefaultConfig())
 	if err != nil {
 		return nil, err
@@ -19,7 +24,7 @@ func getClient() (*api.Client, error) {
 	client.SetNamespace(os.Getenv("VAULT_NAMESPACE"))
 
 	token := os.Getenv("VAULT_TOKEN")
-	fn := os.Getenv("HOME") + "/.vault-token"
+	fn := os.Getenv("HOME") + "/" + RootTokenAddr
 	if _, err := os.Stat(fn); err == nil {
 		bs, err := os.ReadFile(fn)
 		if err != nil {
@@ -48,7 +53,7 @@ func cloneClient(ctx context.Context, client *api.Client, pname string) (*api.Cl
 	} else {
 		clone.SetNamespace(top + "/" + pname)
 	}
-	time.Sleep(time.Second * 4)
+	time.Sleep(sleeping)
 	return clone, nil
 }
 

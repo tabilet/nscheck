@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/openbao/openbao/api/v2"
+	"github.com/tabilet/nscheck/vaultcheck"
 )
 
 func usage() {
@@ -44,7 +45,7 @@ func main() {
 
 	rootToken := rspn.RootToken
 	client.SetToken(rootToken)
-	fn, err := os.Create(os.Getenv("HOME") + "/.vault-token")
+	fn, err := os.Create(os.Getenv("HOME") + "/" + vaultcheck.RootTokenAddr)
 	if err != nil {
 		log.Fatal(err)
 	}

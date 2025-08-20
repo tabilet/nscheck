@@ -209,7 +209,7 @@ func getApprole(client *api.Client, ctx context.Context, path, roleName string, 
 	if err != nil {
 		return "", "", "", err
 	}
-	time.Sleep(time.Second * 4)
+	time.Sleep(sleeping)
 
 	_, err = logical.WriteWithContext(ctx, "auth/"+path+"/role/"+roleName, map[string]any{
 		"policies": policies,

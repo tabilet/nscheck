@@ -49,7 +49,7 @@ func CheckNamespace(client *api.Client) error {
 		if err != nil {
 			return err
 		}
-		time.Sleep(time.Second * 4)
+		time.Sleep(sleeping)
 		rspn, err := logical.ListWithContext(ctx, "sys/namespaces")
 		if err != nil {
 			return err
