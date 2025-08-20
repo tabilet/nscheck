@@ -7,8 +7,8 @@ import (
 	"slices"
 	"time"
 
-	"github.com/hashicorp/vault/api"
-	"github.com/hashicorp/vault/api/auth/approle"
+	"github.com/openbao/openbao/api/auth/approle/v2"
+	"github.com/openbao/openbao/api/v2"
 )
 
 // CheckApproleRoot checks if the AppRole auth is mounted and can be deleted in the root namespace.
@@ -209,7 +209,7 @@ func getApprole(client *api.Client, ctx context.Context, path, roleName string, 
 	if err != nil {
 		return "", "", "", err
 	}
-	time.Sleep(time.Second * 2)
+	time.Sleep(time.Second * 4)
 
 	_, err = logical.WriteWithContext(ctx, "auth/"+path+"/role/"+roleName, map[string]any{
 		"policies": policies,

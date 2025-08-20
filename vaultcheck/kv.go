@@ -7,7 +7,7 @@ import (
 	"slices"
 	"time"
 
-	"github.com/hashicorp/vault/api"
+	"github.com/openbao/openbao/api/v2"
 )
 
 // CheckKVRoot checks if the KV secret engine is mounted and can be deleted in the root namespace.
@@ -192,7 +192,7 @@ func checkKVMount(ctx context.Context, client *api.Client, path string) error {
 	if err != nil {
 		return err
 	}
-	time.Sleep(time.Second * 2)
+	time.Sleep(time.Second * 4)
 
 	mountsRspn, err := sys.ListMountsWithContext(ctx)
 	if err != nil {

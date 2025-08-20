@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hashicorp/vault/api"
+	"github.com/openbao/openbao/api/v2"
 )
 
 // CheckPolicyRootDefault checks if the policy is set to default in the root namespace.

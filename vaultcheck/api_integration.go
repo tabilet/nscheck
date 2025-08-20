@@ -2,10 +2,11 @@ package vaultcheck
 
 import (
 	"context"
+	"log"
 	"os"
 	"time"
 
-	"github.com/hashicorp/vault/api"
+	"github.com/openbao/openbao/api/v2"
 )
 
 func getClient() (*api.Client, error) {
@@ -15,8 +16,19 @@ func getClient() (*api.Client, error) {
 		return nil, err
 	}
 	client.SetAddress(os.Getenv("VAULT_ADDR"))
-	client.SetToken(os.Getenv("VAULT_TOKEN"))
 	client.SetNamespace(os.Getenv("VAULT_NAMESPACE"))
+
+	token := os.Getenv("VAULT_TOKEN")
+	fn := os.Getenv("HOME") + "/.vault-token"
+	if _, err := os.Stat(fn); err == nil {
+		bs, err := os.ReadFile(fn)
+		if err != nil {
+			log.Fatalf("Failed to read root token file: %v", err)
+		}
+		token = string(bs)
+	}
+	client.SetToken(token)
+
 	return client, nil
 }
 
@@ -36,7 +48,7 @@ func cloneClient(ctx context.Context, client *api.Client, pname string) (*api.Cl
 	} else {
 		clone.SetNamespace(top + "/" + pname)
 	}
-	time.Sleep(time.Second * 2)
+	time.Sleep(time.Second * 4)
 	return clone, nil
 }
 

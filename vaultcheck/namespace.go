@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/vault/api"
+	"github.com/openbao/openbao/api/v2"
 )
 
 // CheckNamespace checks if the namespaces are created and can be deleted.
@@ -49,7 +49,7 @@ func CheckNamespace(client *api.Client) error {
 		if err != nil {
 			return err
 		}
-		time.Sleep(time.Second * 3)
+		time.Sleep(time.Second * 4)
 		rspn, err := logical.ListWithContext(ctx, "sys/namespaces")
 		if err != nil {
 			return err
