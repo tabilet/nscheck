@@ -12,7 +12,7 @@ import (
 )
 
 func usage() {
-	fmt.Fprintf(os.Stderr, "usage: init_psql -connURL=postgres://user123:secret123!@vm0:5432/openbao\n")
+	fmt.Fprintf(os.Stderr, "usage: clean_psql -connURL=postgres://user123:secret123!@vm0:5432/openbao\n")
 	flag.PrintDefaults()
 	os.Exit(2)
 }
